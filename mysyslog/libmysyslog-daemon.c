@@ -5,27 +5,29 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "mysyslog.h"
+#include "libmysyslog.h"
 
+// Обработчик сигнала для обработки сигналов SIGHUP и SIGTERM
 void signal_handler(int sig) {
     switch (sig) {
         case SIGHUP:
-            // Reload configuration
+            // Перезагрузить конфигурацию
             break;
         case SIGTERM:
-            // Terminate the daemon
+            // Завершить работу демона
             exit(0);
             break;
     }
 }
 
+// Функция для перевода процесса в режим демона
 void daemonize() {
     pid_t pid;
 
-    // Fork off the parent process
+    // Создать новый процесс путем форка
     pid = fork();
 
-    // If we got a good PID, then we can exit the parent process
+    // Если форк прошел успешно, то в родительском процессе можно завершить работу
     if (pid < 0) {
         exit(EXIT_FAILURE);
     }
@@ -33,42 +35,44 @@ void daemonize() {
         exit(EXIT_SUCCESS);
     }
 
-    // Change the file mode mask
+    // Изменить маску прав доступа для создаваемых файлов
     umask(0);
 
-    // Open any logs here
+    // Открыть необходимые логи
 
-    // Create a new SID for the child process
+    // Создать новый сеанс для дочернего процесса
     if (setsid() < 0) {
         exit(EXIT_FAILURE);
     }
 
-    // Change the current working directory
+    // Изменить текущий рабочий каталог
     if ((chdir("/")) < 0) {
         exit(EXIT_FAILURE);
     }
 
-    // Close out the standard file descriptors
+    // Закрыть стандартные дескрипторы файлов
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 }
 
 int main(int argc, char *argv[]) {
+    // Перевести процесс в режим демона
     daemonize();
 
-    // Signal handling
-    signal(SIGCHLD, SIG_IGN);
-    signal(SIGTSTP, SIG_IGN);
-    signal(SIGTTOU, SIG_IGN);
-    signal(SIGTTIN, SIG_IGN);
-    signal(SIGHUP, signal_handler);
-    signal(SIGTERM, signal_handler);
+    // Обработка сигналов
+    signal(SIGCHLD, SIG_IGN); // Игнорировать сигнал SIGCHLD
+    signal(SIGTSTP, SIG_IGN); // Игнорировать сигнал SIGTSTP
+    signal(SIGTTOU, SIG_IGN); // Игнорировать сигнал SIGTTOU
+    signal(SIGTTIN, SIG_IGN); // Игнорировать сигнал SIGTTIN
+    signal(SIGHUP, signal_handler); // Установить обработчик сигнала для SIGHUP
+    signal(SIGTERM, signal_handler); // Установить обработчик сигнала для SIGTERM
 
-    // Daemon loop
+    // Цикл демона
     while (1) {
+        // Вывести сообщение журнала в файл /var/log/mysyslog.log
         mysyslog("Daemon is running...", INFO, 0, 0, "/var/log/mysyslog.log");
-        sleep(60);
+        sleep(60); // Ожидать 60 секунд перед выводом следующего сообщения журнала
     }
 
     return EXIT_SUCCESS;
