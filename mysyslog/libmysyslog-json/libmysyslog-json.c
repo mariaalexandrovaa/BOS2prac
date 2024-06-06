@@ -1,4 +1,4 @@
-#include "mysyslog-json.h"
+#include "libmysyslog-json.h"
 #include <time.h>
 
 int mysyslog_json(const char* msg, int level, const char* path) {
