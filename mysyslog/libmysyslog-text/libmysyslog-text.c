@@ -1,4 +1,4 @@
-#include "mysyslog-text.h"
+#include "libmysyslog-text.h"
 #include <time.h>
 
 int mysyslog_text(const char* msg, int level, const char* path) {
