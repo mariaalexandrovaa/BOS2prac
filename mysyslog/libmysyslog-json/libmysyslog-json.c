@@ -27,7 +27,7 @@ int mysyslog_json(const char* msg, int level, const char* path) {
             break;
     }
 
-    char* process = "mysyslog-client"; // По умолчанию процесс называется mysyslog-client
+    char* process = "libmysyslog-client"; // По умолчанию процесс называется mysyslog-client
 
     fprintf(file, "{\"timestamp\": %ld, \"log_level\": \"%s\", \"process\": \"%s\", \"message\": \"%s\"}", timestamp, log_level, process, msg);
     fprintf(file, "\n");
